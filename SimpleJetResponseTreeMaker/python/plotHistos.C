@@ -1,7 +1,8 @@
 {
 
   using namespace std;
-  gStyle->SetCanvasBorderMode(0);
+gStyle->SetCanvasBorderMode(0);
+cout<<endl;  
   gStyle->SetCanvasColor(kWhite);
   gStyle->SetCanvasDefH(500); //Height of canvas
   gStyle->SetCanvasDefW(800); //Width of canvas
