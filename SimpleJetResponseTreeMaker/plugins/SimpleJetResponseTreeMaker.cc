@@ -99,6 +99,8 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t GenEta    ;
       Float_t GenPhi    ;
       Float_t GenDeltaR ;
+      Float_t RecoOverGenPt;
+      Float_t RecoMinusGenPt;
       Float_t PFJet_Nconst                       ; 
       Float_t PFJet_chargedEmEnergy              ;
       Float_t PFJet_chargedEmEnergyFraction      ;
@@ -239,6 +241,8 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       GenEta     = theMatchingGenJet.eta();       
       GenPhi     = theMatchingGenJet.phi();    
       GenDeltaR  = deltaR( corrJet.eta(), corrJet.phi(), theMatchingGenJet.eta(), theMatchingGenJet.phi() );
+      if (theMatchingGenJet.pt() > 0) RecoOverGenPt = corrJet.pt()/theMatchingGenJet.pt();
+      RecoMinusGenPt = corrJet.pt() - theMatchingGenJet.pt();
 
       PFJet_Nconst                = jet->numberOfDaughters            ();  
       PFJet_chargedEmEnergy             = jet->chargedEmEnergy              ();  
@@ -302,7 +306,8 @@ SimpleJetResponseTreeMaker::beginJob()
   JetTree->Branch("GenEta"   ,  & GenEta,     "GenEta/F"); 
   JetTree->Branch("GenPhi"   ,  & GenPhi,     "GenPhi/F"); 
   JetTree->Branch("GenDeltaR"   ,  & GenDeltaR,     "GenDeltaR/F"); 
-
+  JetTree->Branch("RecoOverGenPt"   ,  & RecoOverGenPt,     "RecoOverGenPt/F"); 
+  JetTree->Branch("RecoMinusGenPt"   ,  & RecoMinusGenPt,     "RecoMinusGenPt/F"); 
 
   JetTree->Branch("PFJet_Nconst"                , & PFJet_Nconst                , "PFJet_Nconst/F"                );
   JetTree->Branch("PFJet_chargedEmEnergy"             , & PFJet_chargedEmEnergy             , "PFJet_chargedEmEnergy/F"             );
