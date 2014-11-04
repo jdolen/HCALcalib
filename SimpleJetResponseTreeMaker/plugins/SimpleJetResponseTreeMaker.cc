@@ -94,6 +94,15 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t Pt        ;
       Float_t Eta       ;
       Float_t Phi       ;
+
+      Float_t CorrFactor;
+      Float_t CorrMass  ;
+      Float_t CorrEnergy;
+      Float_t CorrPt    ;
+      Float_t CorrEta   ;
+      Float_t CorrPhi   ;
+      Float_t Area      ;
+
       Float_t GenMass   ;
       Float_t GenEnergy ;
       Float_t GenPt     ;
@@ -210,13 +219,14 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     reco::Candidate::PolarLorentzVector corrJet (uncorrJet.pt(), uncorrJet.eta(), uncorrJet.phi(), uncorrJet.mass());
     corrJet *=  (corr );
 
-    if (corrJet.pt() < 10) continue;
+    if (uncorrJet.pt() < 10) continue;
 
     double closest_genjet_dR = 9999;
     reco::GenJet theMatchingGenJet;
     for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
       if ( genjet->pt() < 10 || fabs(genjet->eta())>5 ) continue; 
-      double deltar = deltaR( corrJet.eta(), corrJet.phi(), genjet->eta(), genjet->phi() );
+      //double deltar = deltaR( corrJet.eta(), corrJet.phi(), genjet->eta(), genjet->phi() );
+      double deltar = deltaR( uncorrJet.eta(), uncorrJet.phi(), genjet->eta(), genjet->phi() );
       if ( deltar > 0.2 ) continue;
       if ( deltar < closest_genjet_dR ){
         closest_genjet_dR =  deltar;
@@ -232,21 +242,28 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       Nvtx       = count_vertex;     
       NvtxGood   = count_good_vertex;
       Rho        = rhoVal;
-      Mass       = corrJet.mass();     
-      Energy     = corrJet.energy();   
-      Pt         = corrJet.pt();         
-      Eta        = corrJet.eta();        
-      Phi        = corrJet.phi();        
+      Mass       = uncorrJet.mass();     
+      Energy     = uncorrJet.energy();   
+      Pt         = uncorrJet.pt();         
+      Eta        = uncorrJet.eta();        
+      Phi        = uncorrJet.phi();
+      CorrFactor = corr;
+      CorrMass   = corrJet.mass();     
+      CorrEnergy = corrJet.energy();   
+      CorrPt     = corrJet.pt();         
+      CorrEta    = corrJet.eta();        
+      CorrPhi    = corrJet.phi();  
+      Area       = jet->jetArea() ;      
       GenMass    = theMatchingGenJet.mass();     
       GenEnergy  = theMatchingGenJet.energy();   
       GenPt      = theMatchingGenJet.pt();        
       GenEta     = theMatchingGenJet.eta();       
       GenPhi     = theMatchingGenJet.phi();    
-      GenDeltaR  = deltaR( corrJet.eta(), corrJet.phi(), theMatchingGenJet.eta(), theMatchingGenJet.phi() );
-      if (theMatchingGenJet.pt() > 0) RecoOverGenPt = corrJet.pt()/theMatchingGenJet.pt();
-      RecoMinusGenPt = corrJet.pt() - theMatchingGenJet.pt();
+      GenDeltaR  = deltaR( uncorrJet.eta(), uncorrJet.phi(), theMatchingGenJet.eta(), theMatchingGenJet.phi() );
+      if (theMatchingGenJet.pt() > 0) RecoOverGenPt = uncorrJet.pt()/theMatchingGenJet.pt();
+      RecoMinusGenPt = uncorrJet.pt() - theMatchingGenJet.pt();
 
-      PFJet_Nconst                = jet->numberOfDaughters            ();  
+      PFJet_Nconst                      = jet->numberOfDaughters            ();  
       PFJet_chargedEmEnergy             = jet->chargedEmEnergy              ();  
       PFJet_chargedEmEnergyFraction     = jet->chargedEmEnergyFraction      ();  
       PFJet_chargedHadronEnergy         = jet->chargedHadronEnergy          ();  
@@ -303,6 +320,25 @@ SimpleJetResponseTreeMaker::beginJob()
   JetTree->Branch("Pt"       ,  & Pt,         "Pt/F"); 
   JetTree->Branch("Eta"      ,  & Eta,        "Eta/F"); 
   JetTree->Branch("Phi"      ,  & Phi,        "Phi/F"); 
+
+  JetTree->Branch("CorrFactor"      ,  & CorrFactor,  "CorrFactor/F" ); 
+  JetTree->Branch("CorrMass"        ,  & CorrMass  ,  "CorrMass/F"   ); 
+  JetTree->Branch("CorrEnergy"      ,  & CorrEnergy,  "CorrEnergy/F" ); 
+  JetTree->Branch("CorrPt"          ,  & CorrPt    ,  "CorrPt/F"     ); 
+  JetTree->Branch("CorrEta"         ,  & CorrEta   ,  "CorrEta/F"    ); 
+  JetTree->Branch("CorrPhi"         ,  & CorrPhi   ,  "CorrPhi/F"    ); 
+  JetTree->Branch("Area"            ,  & Area      ,  "Area/F"       ); 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
   JetTree->Branch("GenMass"  ,  & GenMass,    "GenMass/F");
   JetTree->Branch("GenEnergy",  & GenEnergy,  "GenEnergy/F"); 
   JetTree->Branch("GenPt"    ,  & GenPt,      "GenPt/F"); 
