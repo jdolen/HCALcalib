@@ -88,6 +88,7 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Int_t Event       ;
       Int_t Nvtx        ;
       Int_t NvtxGood    ;
+      Float_t Rho       ;
       Float_t Mass      ;
       Float_t Energy    ;
       Float_t Pt        ;
@@ -230,6 +231,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       Event      = event;
       Nvtx       = count_vertex;     
       NvtxGood   = count_good_vertex;
+      Rho        = rhoVal;
       Mass       = corrJet.mass();     
       Energy     = corrJet.energy();   
       Pt         = corrJet.pt();         
@@ -295,6 +297,7 @@ SimpleJetResponseTreeMaker::beginJob()
   JetTree->Branch("Event"    ,  & Event,      "Event/I");
   JetTree->Branch("Nvtx"     ,  & Nvtx,       "Nvtx/I");
   JetTree->Branch("NvtxGood" ,  & NvtxGood,   "NvtxGood/I");
+  JetTree->Branch("Rho"      ,  & Rho,        "Rho/F");
   JetTree->Branch("Mass"     ,  & Mass,       "Mass/F");
   JetTree->Branch("Energy"   ,  & Energy,     "Energy/F"); 
   JetTree->Branch("Pt"       ,  & Pt,         "Pt/F"); 
