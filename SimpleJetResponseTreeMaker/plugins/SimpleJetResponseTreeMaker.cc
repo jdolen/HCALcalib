@@ -82,6 +82,22 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       boost::shared_ptr<FactorizedJetCorrector> jec_;
       boost::shared_ptr<JetCorrectionUncertainty> jecUnc_;
 
+
+      TTree *EventTree;
+      Int_t EventRun         ;
+      Int_t EventLumi        ;
+      Int_t EventEvent       ;
+      Int_t EventNvtx        ;
+      Int_t EventNvtxGood    ;
+      Float_t EventRho       ;
+      Float_t EventSumJetPt            ;
+      Float_t EventSumJetPt_Pt10       ;
+      Float_t EventSumJetPt_Pt10Eta2p4       ;
+      Int_t EventNjets            ;
+      Int_t EventNjets_Pt10       ;
+      Int_t EventNjets_Pt10Eta2p4       ;
+      
+
       TTree *JetTree;
       Int_t Run         ;
       Int_t Lumi        ;
@@ -199,11 +215,71 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel(rhoSrc_, rhoH );
   double rhoVal = *rhoH;
 
+
+  reco::Candidate::LorentzVector gen_pi1;
+  reco::Candidate::LorentzVector gen_pi2;
+
+  // Handle<reco::GenParticleCollection> genParticles;
+  // iEvent.getByLabel("genParticles", genParticles);
+  // for(size_t i = 0; i < genParticles->size(); ++ i) 
+  // {
+  //   const reco::GenParticle & p = (*genParticles)[i];
+  //   //int id = p.pdgId();
+  //   //int st = p.status();  
+  //   //const Candidate * mom = p.mother();
+  //   //int momId = mom->pdgId();
+  //   //double px = p.px(), py = p.py(), pz = p.pz(), e = p.energy();
+  //   //double pt = p.pt();//, eta = p.eta(), phi = p.phi(), mass = p.mass();
+  //   //double vx = p.vx(), vy = p.vy(), vz = p.vz();
+  //   //int charge = p.charge();
+  //   //int n = p.numberOfDaughters();
+  //   //cout<<"id = "<<id<<" status = "<<st<<" mass = "<<mass<<" eta = "<<eta<<" phi = "<<phi<<endl;      
+  //   //cout<<"id = "<<id<<" status = "<<st<<" pt = "<<pt<<" ndaughters "<<n<<endl;      
+
+  //   if ( p.pdgId() ==  211 ) gen_pi1 = p.p4();
+  //   if ( p.pdgId() == -211 ) gen_pi2 = p.p4();
+
+  // }
+
+
   edm::Handle<reco::GenJetCollection> genJetH;
   iEvent.getByLabel(genJetSrc_, genJetH); 
 
+  // reco::GenJet genjet1;
+  // reco::GenJet genjet2;
+  // double closest_genjet_dR1 = 9999;
+  // double closest_genjet_dR2 = 9999;
+
+  // for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
+  //     //if ( genjet->pt() < 10 || fabs(genjet->eta())>5 ) continue; 
+  //     double deltar1 = deltaR( gen_pi1.eta(), gen_pi1.phi(), genjet->eta(), genjet->phi() );
+  //     double deltar2 = deltaR( gen_pi2.eta(), gen_pi2.phi(), genjet->eta(), genjet->phi() );
+  //     if ( deltar1 < closest_genjet_dR1 && deltar1 < 0.2  ){
+  //       closest_genjet_dR1 =  deltar1;
+  //       genjet1 = (*genjet);
+  //     }
+  //     if ( deltar2 < closest_genjet_dR2 && deltar2 < 0.2  ){
+  //       closest_genjet_dR2 =  deltar2;
+  //       genjet2 = (*genjet);
+  //     }
+  //     cout<<"Genjet pt "<<genjet->pt()<<" deltar1 "<<deltar1<<" deltar2 "<<deltar2<<endl;
+  // }
+  // cout<<"  closest_genjet_dR1  "<<closest_genjet_dR1<<endl;
+  // cout<<"  closest_genjet_dR2  "<<closest_genjet_dR2<<endl;
+  // cout<<"  gen_pi1.pt() "<<gen_pi1.pt()<<" genjet1->pt() "<<genjet1.pt() <<endl;
+  // cout<<"  gen_pi2.pt() "<<gen_pi2.pt()<<" genjet2->pt() "<<genjet2.pt() <<endl;
+
   edm::Handle<reco::PFJetCollection> pfjetH;
   iEvent.getByLabel(recoJetSrc_, pfjetH); 
+
+  double sumJetPt             = 0;
+  double sumJetPt_Pt10        = 0;
+  double sumJetPt_Pt10_Eta2p4 = 0;
+
+  int count_jets             = 0;
+  int count_jets_Pt10        = 0;
+  int count_jets_Pt10_Eta2p4 = 0;
+
 
   for ( reco::PFJetCollection::const_iterator jet = pfjetH->begin(); jet != pfjetH->end(); ++jet ) {
 
@@ -218,6 +294,14 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     double corr = jec_->getCorrection();
     reco::Candidate::PolarLorentzVector corrJet (uncorrJet.pt(), uncorrJet.eta(), uncorrJet.phi(), uncorrJet.mass());
     corrJet *=  (corr );
+
+    sumJetPt += jet->pt() ;       
+    if (jet->pt()>10) sumJetPt_Pt10 += jet->pt() ;             
+    if (jet->pt()>10 && fabs(jet->eta()) < 2.4 ) sumJetPt_Pt10_Eta2p4 += jet->pt() ;  
+
+count_jets ++;            
+if (jet->pt()>10) count_jets_Pt10  ++;     
+   if (jet->pt()>10 && fabs(jet->eta()) < 2.4 ) count_jets_Pt10_Eta2p4 ++;
 
     if (uncorrJet.pt() < 10) continue;
 
@@ -297,7 +381,19 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       JetTree->Fill();
     }
   }
-
+      EventRun        = run;
+      EventLumi       = lumi;
+      EventEvent      = event;
+      EventNvtx       = count_vertex;     
+      EventNvtxGood   = count_good_vertex;
+      EventRho        = rhoVal;
+      EventSumJetPt        = sumJetPt;
+      EventSumJetPt_Pt10        = sumJetPt_Pt10;
+      EventSumJetPt_Pt10Eta2p4        = sumJetPt_Pt10_Eta2p4;
+      EventNjets        = count_jets;
+      EventNjets_Pt10        = count_jets_Pt10;
+      EventNjets_Pt10Eta2p4        = count_jets_Pt10_Eta2p4;
+      EventTree->Fill();
 
 }
 
@@ -308,6 +404,24 @@ SimpleJetResponseTreeMaker::beginJob()
 
   edm::Service<TFileService> fs;
   TFileDirectory subDir3 = fs->mkdir("Trees");
+
+ EventTree = new TTree("EventTree","EventTree");
+  EventTree->Branch("EventRun"      ,  & EventRun,        "EventRun/I");
+  EventTree->Branch("EventLumi"     ,  & EventLumi,       "EventLumi/I");
+  EventTree->Branch("EventEvent"    ,  & EventEvent,      "EventEvent/I");
+  EventTree->Branch("EventNvtx"     ,  & EventNvtx,       "EventNvtx/I");
+  EventTree->Branch("EventNvtxGood" ,  & EventNvtxGood,   "EventNvtxGood/I");
+  EventTree->Branch("EventRho"      ,  & EventRho,        "EventRho/F");
+  EventTree->Branch("EventSumJetPt"      ,  & EventSumJetPt,        "EventSumJetPt/F");
+  EventTree->Branch("EventSumJetPt_Pt10"      ,  & EventSumJetPt_Pt10,        "EventSumJetPt_Pt10/F");
+  EventTree->Branch("EventSumJetPt_Pt10Eta2p4"      ,  & EventSumJetPt_Pt10Eta2p4,        "EventSumJetPt_Pt10Eta2p4/F");
+  EventTree->Branch("EventNjets"                 ,  & EventNjets,             "EventNjets/I");
+  EventTree->Branch("EventNjets_Pt10"            ,  & EventNjets_Pt10,        "EventNjets_Pt10/I");
+  EventTree->Branch("EventNjets_Pt10Eta2p4"      ,  & EventNjets_Pt10Eta2p4,  "EventNjets_Pt10Eta2p4/I");
+
+
+
+
   JetTree = new TTree("JetTree","JetTree");
   JetTree->Branch("Run"      ,  & Run,        "Run/I");
   JetTree->Branch("Lumi"     ,  & Lumi,       "Lumi/I");
