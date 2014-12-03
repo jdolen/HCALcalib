@@ -93,6 +93,7 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Int_t     EventNvtxGood               ;
       Float_t   EventRho                    ;
       Float_t   EventRhoCalo                    ;
+      Float_t   EventRhoCaloCentral                    ;
 
       Int_t EventNPU_BXm3  ; 
       Int_t EventNPU_BXm2  ; 
@@ -109,7 +110,11 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t   EventSumJetPt_Pt20              ;
       Float_t   EventSumJetPt_Pt10Eta2p4        ;
       Float_t   EventSumJetPt_Barrel            ;
-      Float_t   EventSumJetPt_Encap             ;
+      Float_t   EventSumJetPt_Endcap             ;
+
+//EventTree->Branch("EventSumJetPt_Barrel"     ,  & EventSumJetPt_Barrel   , "EventSumJetPt_Barrel/F"        );
+//  EventTree->Branch("EventSumJetPt_Endcap"     ,  & EventSumJetPt_Endcap   , "EventSumJetPt_Endcap/F"        );
+
 
       Int_t     EventNjets                      ;
       Int_t     EventNjets_Pt10                 ;
@@ -130,7 +135,7 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t   EventCaloSumJetPt_Pt20          ;
       Float_t   EventCaloSumJetPt_Pt10Eta2p4    ;
       Float_t   EventCaloSumJetPt_Barrel            ;
-      Float_t   EventCaloSumJetPt_Encap             ;
+      Float_t   EventCaloSumJetPt_Endcap             ;
 
       Int_t     EventCaloNjets                  ;
       Int_t     EventCaloNjets_Pt10             ;
@@ -156,6 +161,13 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t CaloJet_Eta                          ;
       Float_t CaloJet_Phi                          ;
 
+      Float_t CaloJet_CorrPt                    ;
+      Float_t CaloJet_CorrPtRhoArea             ;
+      Float_t CaloJet_CorrPtRhocentralArea      ;
+      Float_t CaloJet_Area                      ;
+      Float_t CaloJet_RhoArea                   ;
+      Float_t CaloJet_RhoCentralArea            ;
+      Float_t CaloJet_RhoAreaOfficial           ;
                                                 
       Float_t MyGenJet_HadPt                    ;                               
       Float_t MyGenJet_HadEnergy                ;                                
@@ -206,6 +218,11 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t PFJet_CorrPt                       ;
       Float_t PFJet_CorrEta                      ;
       Float_t PFJet_CorrPhi                      ;
+
+      Float_t PFJet_CorrPtRhoArea                ;
+      Float_t PFJet_RhoArea                      ;
+      Float_t PFJet_RhoAreaOfficial              ;
+
 
       Float_t PFJet_Pt_Over_GenJet_Pt            ;
       Float_t PFJet_Pt_Minus_GenJet_Pt           ;
@@ -403,15 +420,19 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByLabel(rhoSrc_, rhoH );
   double rhoVal = *rhoH;
 
-// double                                "fixedGridRhoAll"           ""                "RECO"    
-// double                                "fixedGridRhoFastjetAll"    ""                "RECO"    
-// double                                "fixedGridRhoFastjetAllCalo"   ""                "RECO"    
-// double                                "fixedGridRhoFastjetCentralCalo"   ""                "RECO"    
-// double                                "fixedGridRhoFastjetCentralChargedPileUp"   ""                "RECO"    
-// double                                "fixedGridRhoFastjetCentralNeutral"   ""                "RECO"    
- edm::Handle<double> rhoH2;
-  iEvent.getByLabel("fixedGridRhoFastjetAllCalo", rhoH2 );
-  double rhoVal2 = *rhoH2;
+  // double                                "fixedGridRhoAll"           ""                "RECO"    
+  // double                                "fixedGridRhoFastjetAll"    ""                "RECO"    
+  // double                                "fixedGridRhoFastjetAllCalo"   ""                "RECO"    
+  // double                                "fixedGridRhoFastjetCentralCalo"   ""                "RECO"    
+  // double                                "fixedGridRhoFastjetCentralChargedPileUp"   ""                "RECO"    
+  // double                                "fixedGridRhoFastjetCentralNeutral"   ""                "RECO"    
+  edm::Handle<double> rhoCaloH;
+  iEvent.getByLabel("fixedGridRhoFastjetAllCalo", rhoCaloH );
+  double rhoValCalo = *rhoCaloH;
+
+  edm::Handle<double> rhoCaloCentralH;
+  iEvent.getByLabel("fixedGridRhoFastjetCentralCalo", rhoCaloCentralH );
+  double rhoValCaloCentral = *rhoCaloCentralH;
 
 
 
@@ -494,7 +515,43 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   
   for ( reco::CaloJetCollection::const_iterator jet = calojetH->begin(); jet != calojetH->end(); ++jet ) {
     reco::Candidate::LorentzVector uncorrJet = jet->p4();
-  //cout<<"calo "<<jet->pt()<<endl;
+    //cout<<"calo "<<jet->pt()<<endl;
+    //reco::Candidate::LorentzVector uncorrJet = jet->p4();
+
+    // JEC by hand
+    jec_->setJetEta( uncorrJet.eta() );
+    jec_->setJetPt ( uncorrJet.pt() );
+    jec_->setJetE  ( uncorrJet.energy() );
+    jec_->setJetA  ( jet->jetArea() );
+    jec_->setRho   ( rhoValCalo );
+
+    // rhoValCalo
+    // rhoValCaloCentral
+
+    // double corr = jec_->getCorrection();
+    // cout<<"corr "<<corr<<endl;
+    jec_->setJetEta( uncorrJet.eta() );
+    jec_->setJetPt ( uncorrJet.pt() );
+    jec_->setJetE  ( uncorrJet.energy() );
+    jec_->setJetA  ( jet->jetArea() );
+    jec_->setRho   ( rhoValCalo );
+    vector<float> vcor;
+    vcor = jec_->getSubCorrections();
+    jec_->setJetEta( uncorrJet.eta() );
+    jec_->setJetPt ( uncorrJet.pt() );
+    jec_->setJetE  ( uncorrJet.energy() );
+    jec_->setJetA  ( jet->jetArea() );
+    jec_->setRho   ( rhoValCalo );
+
+   
+    // cout<<"vcor.size() "<<vcor.size()<<endl;
+    // cout<<"Correction applied to jet after L1Offset = "<<vcor[0]<<endl;
+
+    reco::Candidate::PolarLorentzVector corrJet (uncorrJet.pt(), uncorrJet.eta(), uncorrJet.phi(), uncorrJet.mass());
+    corrJet *=  ( vcor[0] );
+
+
+   
 
     calo_sumJetHadE += jet->hadEnergyInHB() +  jet->hadEnergyInHO() +jet->hadEnergyInHE() +jet->hadEnergyInHF();
     calo_sumJetPt += uncorrJet.pt() ;       
@@ -510,12 +567,12 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     if ( fabs(jet->eta()) < 1.3)  calo_sumJetPt_Barrel += uncorrJet.pt() ;  
     if ( fabs(jet->eta()) > 1.3 && fabs(jet->eta()) < 3.0)  calo_sumJetPt_Endcap += uncorrJet.pt() ;  
 
-    if (uncorrJet.pt() < 3) continue;
+    if (corrJet.pt() < 2) continue;
 
     double closest_genjet_dR = 9999;
     reco::GenJet theMatchingGenJet;
     for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
-      if ( genjet->pt() < 3 || fabs(genjet->eta())>3 ) continue; 
+      if ( genjet->pt() < 2 || fabs(genjet->eta())>3 ) continue; 
       double deltar = deltaR( uncorrJet.eta(), uncorrJet.phi(), genjet->eta(), genjet->phi() );
       if ( deltar > 0.2 ) continue;
       if ( deltar < closest_genjet_dR ){
@@ -524,7 +581,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
 
-    if (closest_genjet_dR<9000)
+    if (closest_genjet_dR<0.2)
     {
 
       // CaloJetTree Fill
@@ -540,11 +597,31 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       MyGenJet_Phi     = theMatchingGenJet.phi();    
       MyGenJet_DeltaR  = deltaR( uncorrJet.eta(), uncorrJet.phi(), theMatchingGenJet.eta(), theMatchingGenJet.phi() );
 
+      CaloJet_Eta        = uncorrJet.eta();        
       CaloJet_Mass       = uncorrJet.mass();     
       CaloJet_Energy     = uncorrJet.energy();   
       CaloJet_Pt         = uncorrJet.pt();         
-      CaloJet_Eta        = uncorrJet.eta();        
-      
+    
+      double rhoCaloArea        = jet->jetArea() * rhoValCalo ;
+      double rhoCaloCentralArea = jet->jetArea() * rhoValCaloCentral ;
+      // cout<<"rhoCaloArea "<<rhoCaloArea<<endl;
+      // cout<<"rhoCaloCentralArea "<<rhoCaloCentralArea<<endl;
+
+      // cout<<"uncorrJet.pt() - corrJet.pt() "<<uncorrJet.pt()-corrJet.pt()<<endl;
+      // cout<<"uncorrJet.pt() "<<uncorrJet.pt()<<endl;
+      // cout<<"corrJet.pt() "<<corrJet.pt()<<endl;
+      // cout<<"uncorrJet.pt()-rhoCaloArea "<<uncorrJet.pt()-rhoCaloArea<<endl;
+      // cout<<"uncorrJet.pt()-rhoCaloCentralArea "<<uncorrJet.pt()-rhoCaloCentralArea<<endl;
+
+
+      CaloJet_CorrPt                = corrJet.pt() ;         
+      CaloJet_CorrPtRhoArea         = uncorrJet.pt()-rhoCaloArea ;         
+      CaloJet_CorrPtRhocentralArea  = uncorrJet.pt()-rhoCaloCentralArea ;         
+      CaloJet_Area                  = jet->jetArea();
+      CaloJet_RhoArea               = jet->jetArea() * rhoValCalo ;
+      CaloJet_RhoCentralArea        = jet->jetArea() * rhoCaloCentralArea ;
+      CaloJet_RhoAreaOfficial       = uncorrJet.pt()-corrJet.pt() ;
+
       CaloJet_EMEB         = jet->emEnergyInEB();
       CaloJet_EfracHad     = jet->energyFractionHadronic();
       CaloJet_hadHB        = jet->hadEnergyInHB();
@@ -609,8 +686,28 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     // jec_->setNPV   ( npv );
     
     double corr = jec_->getCorrection();
+//cout<<"corr "<<corr<<endl;
+    jec_->setJetEta( uncorrJet.eta() );
+    jec_->setJetPt ( uncorrJet.pt() );
+    jec_->setJetE  ( uncorrJet.energy() );
+    jec_->setJetA  ( jet->jetArea() );
+    jec_->setRho   ( rhoVal );
+    vector<float> vcor;
+    vcor = jec_->getSubCorrections();
+    jec_->setJetEta( uncorrJet.eta() );
+    jec_->setJetPt ( uncorrJet.pt() );
+    jec_->setJetE  ( uncorrJet.energy() );
+    jec_->setJetA  ( jet->jetArea() );
+    jec_->setRho   ( rhoVal );
+
+//	cout<<"vcor.size() "<<vcor.size()<<endl;
+  //  cout<<"Correction applied to jet after L1Offset = "<<vcor[0]<<endl;
+   // cout<<"Correction applied to jet after 1  = "<<vcor[1]<<endl;
+   // cout<<"Correction applied to jet after 2  = "<<vcor[2]<<endl;
+
+
     reco::Candidate::PolarLorentzVector corrJet (uncorrJet.pt(), uncorrJet.eta(), uncorrJet.phi(), uncorrJet.mass());
-    corrJet *=  (corr );
+    corrJet *=  ( vcor[0] );
 
     sumJetHadE += jet->chargedHadronEnergy() + jet->neutralHadronEnergy();
     sumJetPt += uncorrJet.pt() ;       
@@ -635,12 +732,12 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
    if (corrJet.pt()>20) count_jets_corr_Pt20  ++;     
    if (corrJet.pt()>10 && fabs(jet->eta()) < 2.4 ) count_jets_corr_Pt10_Eta2p4 ++;
 
-   if (uncorrJet.pt() < 3) continue;
+   if (corrJet.pt() < 2) continue;
 
     double closest_genjet_dR = 9999;
     reco::GenJet theMatchingGenJet;
     for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
-      if ( genjet->pt() < 3 || fabs(genjet->eta())>5 ) continue; 
+      if ( genjet->pt() < 2 || fabs(genjet->eta())>5 ) continue; 
       //double deltar = deltaR( corrJet.eta(), corrJet.phi(), genjet->eta(), genjet->phi() );
       double deltar = deltaR( uncorrJet.eta(), uncorrJet.phi(), genjet->eta(), genjet->phi() );
       if ( deltar > 0.2 ) continue;
@@ -650,7 +747,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
 
-    if (closest_genjet_dR<9000)
+    if (closest_genjet_dR<0.2)
     {
 
       // JetTree Fill
@@ -697,6 +794,20 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       PFJet_CorrEta    = corrJet.eta();        
       PFJet_CorrPhi    = corrJet.phi();  
      
+      double rhoArea        = jet->jetArea() * rhoVal ;
+      // cout<<"rhoCaloArea "<<rhoCaloArea<<endl;
+      // cout<<"rhoCaloCentralArea "<<rhoCaloCentralArea<<endl;
+
+      // cout<<"uncorrJet.pt() - corrJet.pt() "<<uncorrJet.pt()-corrJet.pt()<<endl;
+      // cout<<"uncorrJet.pt() "<<uncorrJet.pt()<<endl;
+      // cout<<"corrJet.pt() "<<corrJet.pt()<<endl;
+      // cout<<"uncorrJet.pt()-rhoCaloArea "<<uncorrJet.pt()-rhoCaloArea<<endl;
+      // cout<<"uncorrJet.pt()-rhoCaloCentralArea "<<uncorrJet.pt()-rhoCaloCentralArea<<endl;
+
+      PFJet_CorrPtRhoArea         = uncorrJet.pt()-rhoArea ;         
+      PFJet_RhoArea               = jet->jetArea() * rhoValCalo ;
+      PFJet_RhoAreaOfficial       = uncorrJet.pt()-corrJet.pt() ;
+
     
       if (theMatchingGenJet.hadEnergy() > 0) PFJet_HadPt_Over_GenJet_HadPt = hadPt/theMatchingGenJet.hadEnergy() ;
       if (genHadPt > 0)                      PFJet_HadE_Over_GenJet_HadE   = hadE/genHadPt;
@@ -750,7 +861,8 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   EventNvtx                       = count_vertex;     
   EventNvtxGood                   = count_good_vertex;
   EventRho                        = rhoVal;
-  EventRhoCalo                    = rhoVal2;
+  EventRhoCalo                    = rhoValCalo;
+  EventRhoCaloCentral                    = rhoValCaloCentral;
 
   EventNPU_BXm3   = npIT_BXm3 ;
   EventNPU_BXm2   = npIT_BXm2 ;
@@ -812,6 +924,7 @@ SimpleJetResponseTreeMaker::beginJob()
   EventTree->Branch("EventNvtxGood"                ,  & EventNvtxGood              , "EventNvtxGood/I"                   );
   EventTree->Branch("EventRho"                     ,  & EventRho                   , "EventRho/F"                        );
   EventTree->Branch("EventRhoCalo"                     ,  & EventRhoCalo                   , "EventRhoCalo/F"                        );
+  EventTree->Branch("EventRhoCaloCentral"                     ,  & EventRhoCaloCentral                   , "EventRhoCaloCentral/F"                        );
   
   EventTree->Branch("EventNPU_BXm3"                     ,  & EventNPU_BXm3                   , "EventNPU_BXm3/I"                        );
   EventTree->Branch("EventNPU_BXm2"                     ,  & EventNPU_BXm2                   , "EventNPU_BXm2/I"                        );
@@ -883,6 +996,20 @@ SimpleJetResponseTreeMaker::beginJob()
   CaloJetTree->Branch("CaloJet_Eta"                         , & CaloJet_Eta                         , "CaloJet_Eta/F"                         ); 
   CaloJetTree->Branch("CaloJet_Phi"                         , & CaloJet_Phi                         , "CaloJet_Phi/F"                         ); 
 
+  CaloJetTree->Branch("CaloJet_CorrPt"                      , & CaloJet_CorrPt                      , "CaloJet_CorrPt/F"                       ); 
+  CaloJetTree->Branch("CaloJet_CorrPtRhoArea"               , & CaloJet_CorrPtRhoArea               , "CaloJet_CorrPtRhoArea/F"                ); 
+  CaloJetTree->Branch("CaloJet_CorrPtRhocentralArea"        , & CaloJet_CorrPtRhocentralArea        , "CaloJet_CorrPtRhocentralArea/F"         ); 
+  CaloJetTree->Branch("CaloJet_Area"                        , & CaloJet_Area                        , "CaloJet_Area/F"                         ); 
+  CaloJetTree->Branch("CaloJet_RhoArea"                     , & CaloJet_RhoArea                     , "CaloJet_RhoArea/F"                      ); 
+  CaloJetTree->Branch("CaloJet_RhoCentralArea"              , & CaloJet_RhoCentralArea              , "CaloJet_RhoCentralArea/F"               ); 
+  CaloJetTree->Branch("CaloJet_RhoAreaOfficial"             , & CaloJet_RhoAreaOfficial             , "CaloJet_RhoAreaOfficial/F"              ); 
+   
+   
+   
+   
+   
+   
+
   CaloJetTree->Branch("CaloJet_Pt_Over_GenJet_Pt"           , & CaloJet_Pt_Over_GenJet_Pt           , "CaloJet_Pt_Over_GenJet_Pt/F"           ); 
   CaloJetTree->Branch("CaloJet_Pt_Minus_GenJet_Pt"          , & CaloJet_Pt_Minus_GenJet_Pt          , "CaloJet_Pt_Minus_GenJet_Pt/F"          ); 
 
@@ -940,6 +1067,13 @@ SimpleJetResponseTreeMaker::beginJob()
   JetTree->Branch("PFJet_CorrPt"                      , & PFJet_CorrPt                      , "PFJet_CorrPt/F"                      ); 
   JetTree->Branch("PFJet_CorrEta"                     , & PFJet_CorrEta                     , "PFJet_CorrEta/F"                     ); 
   JetTree->Branch("PFJet_CorrPhi"                     , & PFJet_CorrPhi                     , "PFJet_CorrPhi/F"                     ); 
+
+
+  JetTree->Branch("PFJet_CorrPtRhoArea"                      , & PFJet_CorrPtRhoArea                      , "PFJet_CorrPtRhoArea/F"                      ); 
+  JetTree->Branch("PFJet_RhoArea"                      , & PFJet_RhoArea                      , "PFJet_RhoArea/F"                      ); 
+  JetTree->Branch("PFJet_RhoAreaOfficial"                      , & PFJet_RhoAreaOfficial                      , "PFJet_RhoAreaOfficial/F"                      ); 
+
+
 
   JetTree->Branch("PFJet_Pt_Over_GenJet_Pt"           , & PFJet_Pt_Over_GenJet_Pt           , "PFJet_Pt_Over_GenJet_Pt/F"           ); 
   JetTree->Branch("PFJet_Pt_Minus_GenJet_Pt"          , & PFJet_Pt_Minus_GenJet_Pt          , "PFJet_Pt_Minus_GenJet_Pt/F"          ); 
