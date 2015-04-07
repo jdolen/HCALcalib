@@ -56,6 +56,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+// fastjet
+#include <fastjet/JetDefinition.hh>
+#include <fastjet/PseudoJet.hh>
+#include "fastjet/tools/Filter.hh"
+#include <fastjet/ClusterSequence.hh>
+#include <fastjet/ClusterSequenceArea.hh>
+
+
 // root
 #include "TH1.h"
 #include "TH2.h"
