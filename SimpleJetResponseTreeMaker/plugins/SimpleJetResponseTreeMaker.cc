@@ -389,15 +389,38 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
  
   // experiment with GenJet constituents
   //https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoParticleFlow/Benchmark/src/PFJetBenchmark.cc
+
+
+
+    for (unsigned int id = 0, nd = j.numberOfDaughters(); id < nd; ++id) {
+        const pat::PackedCandidate &dau = dynamic_cast<const pat::PackedCandidate &>(*j.daughter(id));  
+        jetparticles.push_back( fastjet::PseudoJet( dau.px(), dau.py(), dau.pz(), dau.energy() ));
+    }
+
+    // fastjet::PseudoJet combJet = fastjet::join(jetparticles);
+    // cout<<"jetparticles.size() "<<jetparticles.size()<<endl;cout<<"DEBUG 1"<<endl;
+    double R = 999;                                                          
+    fastjet::JetDefinition jet_def(fastjet::cambridge_algorithm, R);                                                     
+    fastjet::ClusterSequence cs(jetparticles, jet_def);                                                     
+    vector<fastjet::PseudoJet> jets = sorted_by_pt(cs.inclusive_jets());                                                     
+    PseudoJet combJet = jets[0];                                                     
+    Jets_Fat.push_back( combJet); 
+
+
   for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
     //if ( genjet->pt() < genJetPtThreshold_ || fabs(genjet->eta())>3 ) continue; 
     std::vector <const GenParticle*> mcparts = genjet->getGenConstituents ();
     cout<<"GenJet pt "<< genjet->pt()<<" size "<<mcparts.size()<<endl;
+    std::vector<fastjet::PseudoJet> genjetparticles;
+
     for (unsigned i = 0; i < mcparts.size (); i++) {
       const GenParticle* mcpart = mcparts[i];
       int PDG = std::abs( mcpart->pdgId());
-      cout<<"   particle PDG "<<PDG<<endl;
+      cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt()<<endl;
+      genjetparticles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
     }
+    fastjet::PseudoJet combinedGenJetParticles = fastjet::join(genjetparticles);
+    cout<<" combinedGenJetParticles Pt "<<combinedGenJetParticles.pt()<<endl;
   }
 
 
