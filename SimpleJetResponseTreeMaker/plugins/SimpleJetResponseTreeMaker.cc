@@ -361,10 +361,10 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   double rhoValCalo = *rhoCaloH;
 
   // get central calo rho
-  edm::Handle<double> rhoCaloCentralH;
-  iEvent.getByLabel("fixedGridRhoFastjetCentralCalo", rhoCaloCentralH );
-  double rhoValCaloCentral = *rhoCaloCentralH;
-
+//  edm::Handle<double> rhoCaloCentralH;
+//  iEvent.getByLabel("fixedGridRhoFastjetCentralCalo", rhoCaloCentralH );
+//  double rhoValCaloCentral = *rhoCaloCentralH;
+ double rhoValCaloCentral = 1;
 
   // Get gen particle info (for particle gun samples)
   reco::Candidate::LorentzVector gen_pi1;
