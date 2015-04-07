@@ -379,10 +379,28 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     if ( p.pdgId() == -211 ) gen_pi2 = p.p4();
   }
 
+ 
+  //-------------------------------------------------
   // GenJets
+  //-------------------------------------------------
+
   edm::Handle<reco::GenJetCollection> genJetH;
   iEvent.getByLabel(genJetSrc_, genJetH); 
  
+  // experiment with GenJet constituents
+  //https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoParticleFlow/Benchmark/src/PFJetBenchmark.cc
+  for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
+    //if ( genjet->pt() < genJetPtThreshold_ || fabs(genjet->eta())>3 ) continue; 
+    std::vector <const GenParticle*> mcparts = genjet->getGenConstituents ();
+    cout<<"GenJet pt "<< genjet->pt()<<" size "<<mcparts.size()<<endl;
+    for (unsigned i = 0; i < mcparts.size (); i++) {
+      const GenParticle* mcpart = mcparts[i];
+      int PDG = std::abs( mcpart->pdgId());
+      cout<<"   particle PDG "<<PDG<<endl;
+    }
+  }
+
+
   //-------------------------------------------------
   // Calo Jets
   //-------------------------------------------------
@@ -547,6 +565,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     jec_->setJetE  ( uncorrJet.energy() );
     jec_->setJetA  ( jet->jetArea() );
     jec_->setRho   ( rhoVal );
+
     // weird behavior...have to setJet multiple times
     double corr = jec_->getCorrection();
     jec_->setJetEta( uncorrJet.eta() );
