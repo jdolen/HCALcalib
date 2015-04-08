@@ -755,7 +755,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       //--------------------------------
       // Get constituent gen info for matching genJet
       //--------------------------------
-      std::vector <const GenParticle*> mcparts = theMatchingGenJet->getGenConstituents ();
+      std::vector <const GenParticle*> mcparts = theMatchingGenJet.getGenConstituents ();
 
       std::vector<fastjet::PseudoJet> genjet_particles       ;
       std::vector<fastjet::PseudoJet> genjet_photons         ;
@@ -827,19 +827,19 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       PFJet_MatchedGenJet_GenNeutHad_Pt        = combined_genjet_neutral_hadrons .pt()    ;
       PFJet_MatchedGenJet_GenOther_Pt          = combined_genjet_other           .pt()    ;
 
-      PFJet_MatchedGenJet_GenParticle_Mass     = combined_genjet_particles       .mass()    ;
-      PFJet_MatchedGenJet_GenPhoton_Mass       = combined_genjet_photons         .mass()    ;
-      PFJet_MatchedGenJet_GenElectron_Mass     = combined_genjet_electrons       .mass()    ;
-      PFJet_MatchedGenJet_GenCharHad_Mass      = combined_genjet_charged_hadrons .mass()    ;
-      PFJet_MatchedGenJet_GenNeutHad_Mass      = combined_genjet_neutral_hadrons .mass()    ;
-      PFJet_MatchedGenJet_GenOther_Mass        = combined_genjet_other           .mass()    ;
+      PFJet_MatchedGenJet_GenParticle_Mass     = combined_genjet_particles       .m()    ;
+      PFJet_MatchedGenJet_GenPhoton_Mass       = combined_genjet_photons         .m()    ;
+      PFJet_MatchedGenJet_GenElectron_Mass     = combined_genjet_electrons       .m()    ;
+      PFJet_MatchedGenJet_GenCharHad_Mass      = combined_genjet_charged_hadrons .m()    ;
+      PFJet_MatchedGenJet_GenNeutHad_Mass      = combined_genjet_neutral_hadrons .m()    ;
+      PFJet_MatchedGenJet_GenOther_Mass        = combined_genjet_other           .m()    ;
 
-      PFJet_MatchedGenJet_GenParticle_Energy   = combined_genjet_particles       .energy()    ;
-      PFJet_MatchedGenJet_GenPhoton_Energy     = combined_genjet_photons         .energy()    ;
-      PFJet_MatchedGenJet_GenElectron_Energy   = combined_genjet_electrons       .energy()    ;
-      PFJet_MatchedGenJet_GenCharHad_Energy    = combined_genjet_charged_hadrons .energy()    ;
-      PFJet_MatchedGenJet_GenNeutHad_Energy    = combined_genjet_neutral_hadrons .energy()    ;
-      PFJet_MatchedGenJet_GenOther_Energy      = combined_genjet_other           .energy()    ;
+      PFJet_MatchedGenJet_GenParticle_Energy   = combined_genjet_particles       .e()    ;
+      PFJet_MatchedGenJet_GenPhoton_Energy     = combined_genjet_photons         .e()    ;
+      PFJet_MatchedGenJet_GenElectron_Energy   = combined_genjet_electrons       .e()    ;
+      PFJet_MatchedGenJet_GenCharHad_Energy    = combined_genjet_charged_hadrons .e()    ;
+      PFJet_MatchedGenJet_GenNeutHad_Energy    = combined_genjet_neutral_hadrons .e()    ;
+      PFJet_MatchedGenJet_GenOther_Energy      = combined_genjet_other           .e()    ;
 
 
       //----------------------------------------
