@@ -429,6 +429,8 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     std::vector<fastjet::PseudoJet> genjet_particles       ;
     std::vector<fastjet::PseudoJet> genjet_photons         ;
     std::vector<fastjet::PseudoJet> genjet_electrons       ;
+    std::vector<fastjet::PseudoJet> genjet_muon            ;
+    std::vector<fastjet::PseudoJet> genjet_neutrino        ;
     std::vector<fastjet::PseudoJet> genjet_charged_hadrons ;
     std::vector<fastjet::PseudoJet> genjet_neutral_hadrons ;
     std::vector<fastjet::PseudoJet> genjet_other           ;
@@ -456,6 +458,14 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           if (verbose) cout<<" proton "<<endl;
           genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
+        case 3222: // Sigma+
+          if (verbose) cout<<" Sigma+"<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 3112: // Sigma-
+          if (verbose) cout<<" Sigma-"<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
         case 11: //electrons (until recognised)
           if (verbose) cout<<" electrons "<<endl;
           genjet_electrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
@@ -472,12 +482,20 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           if (verbose) cout<<" Lambda0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
+        case 3212: // Sigma0
+          if (verbose) cout<<" Sigma0 "<<endl;
+          genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
         case 2112: // n0
           if (verbose) cout<<" n0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
+        case 11: // lepton
+          if (verbose) cout<<" lepton "<<endl;
+          genjet_lepton.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
         default:
-          if (verbose) cout<<" other "<<endl;
+          if (verbose) cout<<" other other other other other other other other other other other other other"<<endl;
           genjet_other.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
       }  // end PDG switch  
