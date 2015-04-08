@@ -405,11 +405,53 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     cout<<"GenJet pt "<< genjet->pt()<<" size "<<mcparts.size()<<endl;
     std::vector<fastjet::PseudoJet> genjetparticles;
 
+    double true_NeutralEmEnergy  = 0;
+    double true_ChargedHadEnergy = 0;
+    double true_NeutralHadEnergy = 0;
+
     for (unsigned i = 0; i < mcparts.size (); i++) {
       const GenParticle* mcpart = mcparts[i];
       int PDG = std::abs( mcpart->pdgId());
-      cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt()<<endl;
+      double e = mcpart->energy(); 
       genjetparticles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+
+      cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt();
+      switch(PDG){  // start PDG switch
+        case 22: // photon
+          true_NeutralEmEnergy += e;
+          cout<<" photon "<<endl;
+          break;
+        case 211: // charged pion
+          cout<<" charged pion "<<endl;
+          break;
+        case 321: // K
+          cout<<" Kaon pion "<<endl;
+          break;
+        case 2212: // p
+          cout<<" proton "<<endl;
+          break;
+        case 11: //electrons (until recognised)
+          true_ChargedHadEnergy += e;
+          cout<<" electrons "<<endl;
+          break;
+        case 310: // K_S0
+          cout<<" K_S0 "<<endl;
+          break;
+        case 130: // K_L0
+          cout<<" K_L0 "<<endl;
+          break;
+        case 3122: // Lambda0
+          cout<<" Lambda0 "<<endl;
+          break;
+        case 2112: // n0
+          true_NeutralHadEnergy += e;
+          cout<<" n0 "<<endl;
+          break;
+        default:
+          cout<<" other "<<endl;
+          break;
+      }  // end PDG switch  
+      cout<<endl;
     }
     fastjet::PseudoJet combinedGenJetParticles = fastjet::join(genjetparticles);
     cout<<" combinedGenJetParticles Pt "<<combinedGenJetParticles.pt()<<endl;
