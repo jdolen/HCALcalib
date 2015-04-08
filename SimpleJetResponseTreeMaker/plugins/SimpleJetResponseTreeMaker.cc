@@ -400,61 +400,93 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
   for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
-    //if ( genjet->pt() < genJetPtThreshold_ || fabs(genjet->eta())>3 ) continue; 
+    // if ( genjet->pt() < genJetPtThreshold_ || fabs(genjet->eta())>3 ) continue; 
+    if ( genjet->pt() < 50 || fabs(genjet->eta())>3 ) continue; 
     std::vector <const GenParticle*> mcparts = genjet->getGenConstituents ();
     cout<<"GenJet pt "<< genjet->pt()<<" size "<<mcparts.size()<<endl;
-    std::vector<fastjet::PseudoJet> genjetparticles;
+    std::vector<fastjet::PseudoJet> genjet_particles       ;
+    std::vector<fastjet::PseudoJet> genjet_photons         ;
+    std::vector<fastjet::PseudoJet> genjet_electrons       ;
+    std::vector<fastjet::PseudoJet> genjet_charged_hadrons ;
+    std::vector<fastjet::PseudoJet> genjet_neutral_hadrons ;
+    std::vector<fastjet::PseudoJet> genjet_other           ;
 
     double true_NeutralEmEnergy  = 0;
     double true_ChargedHadEnergy = 0;
     double true_NeutralHadEnergy = 0;
 
+    double sum_photon_pT = 0;
+    double sum_photon_pT = 0;
+
     for (unsigned i = 0; i < mcparts.size (); i++) {
       const GenParticle* mcpart = mcparts[i];
       int PDG = std::abs( mcpart->pdgId());
-      double e = mcpart->energy(); 
-      genjetparticles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+      double energy = mcpart->energy(); 
+      genjet_particles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
 
       cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt();
       switch(PDG){  // start PDG switch
         case 22: // photon
-          true_NeutralEmEnergy += e;
           cout<<" photon "<<endl;
+          genjet_photons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 211: // charged pion
           cout<<" charged pion "<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 321: // K
-          cout<<" Kaon pion "<<endl;
+          cout<<" charged Kaon "<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 2212: // p
           cout<<" proton "<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 11: //electrons (until recognised)
-          true_ChargedHadEnergy += e;
           cout<<" electrons "<<endl;
+          genjet_electrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 310: // K_S0
           cout<<" K_S0 "<<endl;
+          genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 130: // K_L0
           cout<<" K_L0 "<<endl;
+          genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 3122: // Lambda0
           cout<<" Lambda0 "<<endl;
+          genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 2112: // n0
-          true_NeutralHadEnergy += e;
           cout<<" n0 "<<endl;
+          genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         default:
           cout<<" other "<<endl;
+          genjet_other.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
       }  // end PDG switch  
-      cout<<endl;
     }
-    fastjet::PseudoJet combinedGenJetParticles = fastjet::join(genjetparticles);
-    cout<<" combinedGenJetParticles Pt "<<combinedGenJetParticles.pt()<<endl;
+    fastjet::PseudoJet combined_genjet_particles        = fastjet::join(genjet_particles       );
+    fastjet::PseudoJet combined_genjet_photons          = fastjet::join(genjet_photons         );
+    fastjet::PseudoJet combined_genjet_electrons        = fastjet::join(genjet_electrons       );
+    fastjet::PseudoJet combined_genjet_charged_hadrons  = fastjet::join(genjet_charged_hadrons );
+    fastjet::PseudoJet combined_genjet_neutral_hadrons  = fastjet::join(genjet_neutral_hadrons );
+    fastjet::PseudoJet combined_genjet_other            = fastjet::join(genjet_other           );
+
+    if (combined_genjet_other.pt()>2) cout<<"LOOK AT THIS"<<endl;
+
+    cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
+    cout<<" combined_genjet_photons           Pt "<< combined_genjet_photons         .pt() <<"     ptfraction "<< combined_genjet_photons         .pt() / combined_genjet_particles       .pt()<<endl;
+    cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
+    cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+    cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+    cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
+    double sum_pt = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt() + combined_genjet_other.pt() ;
+    double sum_pt_no_other = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt()  ;
+    cout<<" sum                               Pt "<< sum_pt <<"     ptfraction "<<sum_pt/combined_genjet_particles       .pt();
+    cout<<" sum no other                      Pt "<< sum_pt_no_other <<"     ptfraction "<<sum_pt_no_other/combined_genjet_particles       .pt();
   }
 
 
