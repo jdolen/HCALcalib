@@ -411,17 +411,17 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     std::vector<fastjet::PseudoJet> genjet_neutral_hadrons ;
     std::vector<fastjet::PseudoJet> genjet_other           ;
 
-    double true_NeutralEmEnergy  = 0;
-    double true_ChargedHadEnergy = 0;
-    double true_NeutralHadEnergy = 0;
+    // double true_NeutralEmEnergy  = 0;
+    // double true_ChargedHadEnergy = 0;
+    // double true_NeutralHadEnergy = 0;
 
-    double sum_photon_pT = 0;
-    double sum_photon_pT = 0;
+    // double sum_photon_pT = 0;
+    // double sum_photon_pT = 0;
 
     for (unsigned i = 0; i < mcparts.size (); i++) {
       const GenParticle* mcpart = mcparts[i];
       int PDG = std::abs( mcpart->pdgId());
-      double energy = mcpart->energy(); 
+      // double energy = mcpart->energy(); 
       genjet_particles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
 
       cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt();
