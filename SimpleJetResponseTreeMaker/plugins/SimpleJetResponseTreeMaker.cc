@@ -215,6 +215,25 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t PFJet_MatchedGenJet_HadPt                     ;                       
       Float_t PFJet_MatchedGenJet_HadEnergy                 ; 
 
+      Float_t PFJet_MatchedGenJet_GenParticle_Pt      ;  
+      Float_t PFJet_MatchedGenJet_GenPhoton_Pt        ;  
+      Float_t PFJet_MatchedGenJet_GenElectron_Pt      ;  
+      Float_t PFJet_MatchedGenJet_GenCharHad_Pt       ;  
+      Float_t PFJet_MatchedGenJet_GenNeutHad_Pt       ;  
+      Float_t PFJet_MatchedGenJet_GenOther_Pt         ;  
+      Float_t PFJet_MatchedGenJet_GenParticle_Mass    ;  
+      Float_t PFJet_MatchedGenJet_GenPhoton_Mass      ;  
+      Float_t PFJet_MatchedGenJet_GenElectron_Mass    ;  
+      Float_t PFJet_MatchedGenJet_GenCharHad_Mass     ;  
+      Float_t PFJet_MatchedGenJet_GenNeutHad_Mass     ;  
+      Float_t PFJet_MatchedGenJet_GenOther_Mass       ;  
+      Float_t PFJet_MatchedGenJet_GenParticle_Energy  ;  
+      Float_t PFJet_MatchedGenJet_GenPhoton_Energy    ;  
+      Float_t PFJet_MatchedGenJet_GenElectron_Energy  ;  
+      Float_t PFJet_MatchedGenJet_GenCharHad_Energy   ;  
+      Float_t PFJet_MatchedGenJet_GenNeutHad_Energy   ;  
+      Float_t PFJet_MatchedGenJet_GenOther_Energy     ;  
+
       Float_t PFJet_Area                         ;
       Float_t PFJet_CorrFactor                   ;
 
@@ -318,6 +337,8 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace reco;
   using namespace pat;
 
+  bool verbose = false;
+
   int run   = iEvent.id().run();
   int event = iEvent.id().event();
   int lumi  = iEvent.id().luminosityBlock();
@@ -398,12 +419,13 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   // experiment with GenJet constituents
   //https://github.com/cms-sw/cmssw/blob/2b75137e278b50fc967f95929388d430ef64710b/RecoParticleFlow/Benchmark/src/PFJetBenchmark.cc
 
-
   for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
     // if ( genjet->pt() < genJetPtThreshold_ || fabs(genjet->eta())>3 ) continue; 
     if ( genjet->pt() < 50 || fabs(genjet->eta())>3 ) continue; 
+    
     std::vector <const GenParticle*> mcparts = genjet->getGenConstituents ();
-    cout<<"GenJet pt "<< genjet->pt()<<" size "<<mcparts.size()<<endl;
+    if (verbose)cout<<"GenJet pt "<< genjet->pt()<<" size "<<mcparts.size()<<endl;
+
     std::vector<fastjet::PseudoJet> genjet_particles       ;
     std::vector<fastjet::PseudoJet> genjet_photons         ;
     std::vector<fastjet::PseudoJet> genjet_electrons       ;
@@ -411,59 +433,51 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     std::vector<fastjet::PseudoJet> genjet_neutral_hadrons ;
     std::vector<fastjet::PseudoJet> genjet_other           ;
 
-    // double true_NeutralEmEnergy  = 0;
-    // double true_ChargedHadEnergy = 0;
-    // double true_NeutralHadEnergy = 0;
-
-    // double sum_photon_pT = 0;
-    // double sum_photon_pT = 0;
-
     for (unsigned i = 0; i < mcparts.size (); i++) {
       const GenParticle* mcpart = mcparts[i];
       int PDG = std::abs( mcpart->pdgId());
-      // double energy = mcpart->energy(); 
       genjet_particles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
 
-      cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt();
+      if (verbose) cout<<"   particle PDG "<<PDG<<" pt "<<mcpart->pt();
       switch(PDG){  // start PDG switch
         case 22: // photon
-          cout<<" photon "<<endl;
+          if (verbose) cout<<" photon "<<endl;
           genjet_photons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 211: // charged pion
-          cout<<" charged pion "<<endl;
+          if (verbose) cout<<" charged pion "<<endl;
           genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 321: // K
-          cout<<" charged Kaon "<<endl;
+          if (verbose) cout<<" charged Kaon "<<endl;
           genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 2212: // p
-          cout<<" proton "<<endl;
+          if (verbose) cout<<" proton "<<endl;
           genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 11: //electrons (until recognised)
-          cout<<" electrons "<<endl;
+          if (verbose) cout<<" electrons "<<endl;
           genjet_electrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 310: // K_S0
-          cout<<" K_S0 "<<endl;
+          if (verbose) cout<<" K_S0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 130: // K_L0
-          cout<<" K_L0 "<<endl;
+          if (verbose) cout<<" K_L0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 3122: // Lambda0
-          cout<<" Lambda0 "<<endl;
+          if (verbose) cout<<" Lambda0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         case 2112: // n0
-          cout<<" n0 "<<endl;
+          if (verbose) cout<<" n0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         default:
-          cout<<" other "<<endl;
+          if (verbose) cout<<" other "<<endl;
           genjet_other.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
       }  // end PDG switch  
@@ -477,16 +491,20 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
 
     if (combined_genjet_other.pt()>2) cout<<"LOOK AT THIS"<<endl;
 
-    cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
-    cout<<" combined_genjet_photons           Pt "<< combined_genjet_photons         .pt() <<"     ptfraction "<< combined_genjet_photons         .pt() / combined_genjet_particles       .pt()<<endl;
-    cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
-    cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
-    cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
-    cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
+
     double sum_pt = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt() + combined_genjet_other.pt() ;
     double sum_pt_no_other = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt()  ;
-    cout<<" sum                               Pt "<< sum_pt <<"     ptfraction "<<sum_pt/combined_genjet_particles       .pt();
-    cout<<" sum no other                      Pt "<< sum_pt_no_other <<"     ptfraction "<<sum_pt_no_other/combined_genjet_particles       .pt();
+    
+    if (verbose){
+      cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
+      cout<<" combined_genjet_photons           Pt "<< combined_genjet_photons         .pt() <<"     ptfraction "<< combined_genjet_photons         .pt() / combined_genjet_particles       .pt()<<endl;
+      cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
+      cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+      cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+      cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
+      cout<<" sum                               Pt "<< sum_pt <<"     ptfraction "<<sum_pt/combined_genjet_particles       .pt() <<endl;;
+      cout<<" sum no other                      Pt "<< sum_pt_no_other <<"     ptfraction "<<sum_pt_no_other/combined_genjet_particles       .pt() <<endl;
+    }
   }
 
 
@@ -705,6 +723,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
     for (GenJetCollection::const_iterator genjet=genJetH->begin(); genjet!=genJetH->end(); genjet++) {
       if ( genjet->pt() < genJetPtThreshold_ || fabs(genjet->eta())>3 ) continue; 
       double deltar = deltaR( uncorrJet.eta(), uncorrJet.phi(), genjet->eta(), genjet->phi() );
+
       if ( deltar > genJetMatchDeltaR_ ) continue;
       if ( deltar < closest_genjet_dR ){
         closest_genjet_dR =  deltar;
@@ -732,6 +751,98 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       PFJet_MatchedGenJet_Eta       = theMatchingGenJet.eta();       
       PFJet_MatchedGenJet_Phi       = theMatchingGenJet.phi();    
       PFJet_MatchedGenJet_DeltaR    = deltaR( uncorrJet.eta(), uncorrJet.phi(), theMatchingGenJet.eta(), theMatchingGenJet.phi() );
+
+      //--------------------------------
+      // Get constituent gen info for matching genJet
+      //--------------------------------
+      std::vector <const GenParticle*> mcparts = theMatchingGenJet->getGenConstituents ();
+
+      std::vector<fastjet::PseudoJet> genjet_particles       ;
+      std::vector<fastjet::PseudoJet> genjet_photons         ;
+      std::vector<fastjet::PseudoJet> genjet_electrons       ;
+      std::vector<fastjet::PseudoJet> genjet_charged_hadrons ;
+      std::vector<fastjet::PseudoJet> genjet_neutral_hadrons ;
+      std::vector<fastjet::PseudoJet> genjet_other           ;
+
+      for (unsigned i = 0; i < mcparts.size (); i++) {
+        const GenParticle* mcpart = mcparts[i];
+        int PDG = std::abs( mcpart->pdgId());
+        genjet_particles.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+
+        switch(PDG){  // start PDG switch
+          case 22: // photon
+            genjet_photons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 211: // charged pion
+            genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 321: // K
+            genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 2212: // p
+            genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 11: //electrons 
+            genjet_electrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 310: // K_S0
+            genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 130: // K_L0
+            genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 3122: // Lambda0
+            genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          case 2112: // n0
+            genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+          default:
+            genjet_other.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+            break;
+        }  // end PDG switch  
+      }// end genparticle loop
+
+
+      fastjet::PseudoJet combined_genjet_particles        = fastjet::join(genjet_particles       );
+      fastjet::PseudoJet combined_genjet_photons          = fastjet::join(genjet_photons         );
+      fastjet::PseudoJet combined_genjet_electrons        = fastjet::join(genjet_electrons       );
+      fastjet::PseudoJet combined_genjet_charged_hadrons  = fastjet::join(genjet_charged_hadrons );
+      fastjet::PseudoJet combined_genjet_neutral_hadrons  = fastjet::join(genjet_neutral_hadrons );
+      fastjet::PseudoJet combined_genjet_other            = fastjet::join(genjet_other           );
+
+      if (verbose){
+        cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
+        cout<<" combined_genjet_photons           Pt "<< combined_genjet_photons         .pt() <<"     ptfraction "<< combined_genjet_photons         .pt() / combined_genjet_particles       .pt()<<endl;
+        cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
+        cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+        cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+        cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
+      }
+   
+      PFJet_MatchedGenJet_GenParticle_Pt       = combined_genjet_particles       .pt()    ;
+      PFJet_MatchedGenJet_GenPhoton_Pt         = combined_genjet_photons         .pt()    ;
+      PFJet_MatchedGenJet_GenElectron_Pt       = combined_genjet_electrons       .pt()    ;
+      PFJet_MatchedGenJet_GenCharHad_Pt        = combined_genjet_charged_hadrons .pt()    ;
+      PFJet_MatchedGenJet_GenNeutHad_Pt        = combined_genjet_neutral_hadrons .pt()    ;
+      PFJet_MatchedGenJet_GenOther_Pt          = combined_genjet_other           .pt()    ;
+
+      PFJet_MatchedGenJet_GenParticle_Mass     = combined_genjet_particles       .mass()    ;
+      PFJet_MatchedGenJet_GenPhoton_Mass       = combined_genjet_photons         .mass()    ;
+      PFJet_MatchedGenJet_GenElectron_Mass     = combined_genjet_electrons       .mass()    ;
+      PFJet_MatchedGenJet_GenCharHad_Mass      = combined_genjet_charged_hadrons .mass()    ;
+      PFJet_MatchedGenJet_GenNeutHad_Mass      = combined_genjet_neutral_hadrons .mass()    ;
+      PFJet_MatchedGenJet_GenOther_Mass        = combined_genjet_other           .mass()    ;
+
+      PFJet_MatchedGenJet_GenParticle_Energy   = combined_genjet_particles       .energy()    ;
+      PFJet_MatchedGenJet_GenPhoton_Energy     = combined_genjet_photons         .energy()    ;
+      PFJet_MatchedGenJet_GenElectron_Energy   = combined_genjet_electrons       .energy()    ;
+      PFJet_MatchedGenJet_GenCharHad_Energy    = combined_genjet_charged_hadrons .energy()    ;
+      PFJet_MatchedGenJet_GenNeutHad_Energy    = combined_genjet_neutral_hadrons .energy()    ;
+      PFJet_MatchedGenJet_GenOther_Energy      = combined_genjet_other           .energy()    ;
+
+
+      //----------------------------------------
 
       PFJet_Area       = jet->jetArea() ;      
       PFJet_CorrFactor = corr;
@@ -978,6 +1089,28 @@ SimpleJetResponseTreeMaker::beginJob()
   PFJetTree->Branch("PFJet_MatchedGenJet_DeltaR"        , & PFJet_MatchedGenJet_DeltaR        , "PFJet_MatchedGenJet_DeltaR/F"                   ); 
   PFJetTree->Branch("PFJet_MatchedGenJet_HadPt"         , & PFJet_MatchedGenJet_HadPt         , "PFJet_MatchedGenJet_HadPt/F"                    );
   PFJetTree->Branch("PFJet_MatchedGenJet_HadEnergy"     , & PFJet_MatchedGenJet_HadEnergy     , "PFJet_MatchedGenJet_HadEnergy/F"                );
+ 
+
+
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenParticle_Pt"      , & PFJet_MatchedGenJet_GenParticle_Pt      , "PFJet_MatchedGenJet_GenParticle_Pt/F"       );             
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenPhoton_Pt"        , & PFJet_MatchedGenJet_GenPhoton_Pt        , "PFJet_MatchedGenJet_GenPhoton_Pt/F"         );           
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenElectron_Pt"      , & PFJet_MatchedGenJet_GenElectron_Pt      , "PFJet_MatchedGenJet_GenElectron_Pt/F"       );             
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenCharHad_Pt"       , & PFJet_MatchedGenJet_GenCharHad_Pt       , "PFJet_MatchedGenJet_GenCharHad_Pt/F"        );            
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenNeutHad_Pt"       , & PFJet_MatchedGenJet_GenNeutHad_Pt       , "PFJet_MatchedGenJet_GenNeutHad_Pt/F"        );            
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenOther_Pt"         , & PFJet_MatchedGenJet_GenOther_Pt         , "PFJet_MatchedGenJet_GenOther_Pt/F"          );          
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenParticle_Mass"    , & PFJet_MatchedGenJet_GenParticle_Mass    , "PFJet_MatchedGenJet_GenParticle_Mass/F"     );               
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenPhoton_Mass"      , & PFJet_MatchedGenJet_GenPhoton_Mass      , "PFJet_MatchedGenJet_GenPhoton_Mass/F"       );             
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenElectron_Mass"    , & PFJet_MatchedGenJet_GenElectron_Mass    , "PFJet_MatchedGenJet_GenElectron_Mass/F"     );               
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenCharHad_Mass"     , & PFJet_MatchedGenJet_GenCharHad_Mass     , "PFJet_MatchedGenJet_GenCharHad_Mass/F"      );              
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenNeutHad_Mass"     , & PFJet_MatchedGenJet_GenNeutHad_Mass     , "PFJet_MatchedGenJet_GenNeutHad_Mass/F"      ;              
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenOther_Mass"       , & PFJet_MatchedGenJet_GenOther_Mass       , "PFJet_MatchedGenJet_GenOther_Mass/F"        );            
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenParticle_Energy"  , & PFJet_MatchedGenJet_GenParticle_Energy  , "PFJet_MatchedGenJet_GenParticle_Energy/F"   );                 
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenPhoton_Energy"    , & PFJet_MatchedGenJet_GenPhoton_Energy    , "PFJet_MatchedGenJet_GenPhoton_Energy/F"     );               
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenElectron_Energy"  , & PFJet_MatchedGenJet_GenElectron_Energy  , "PFJet_MatchedGenJet_GenElectron_Energy/F"   );                 
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenCharHad_Energy"   , & PFJet_MatchedGenJet_GenCharHad_Energy   , "PFJet_MatchedGenJet_GenCharHad_Energy/F"    );                
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenNeutHad_Energy"   , & PFJet_MatchedGenJet_GenNeutHad_Energy   , "PFJet_MatchedGenJet_GenNeutHad_Energy/F"    );                
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenOther_Energy"     , & PFJet_MatchedGenJet_GenOther_Energy     , "PFJet_MatchedGenJet_GenOther_Energy/F"      );              
+
 
   PFJetTree->Branch("PFJet_Area"                        , & PFJet_Area                        , "PFJet_Area/F"                        ); 
   PFJetTree->Branch("PFJet_CorrFactor"                  , & PFJet_CorrFactor                  , "PFJet_CorrFactor/F"                  ); 
