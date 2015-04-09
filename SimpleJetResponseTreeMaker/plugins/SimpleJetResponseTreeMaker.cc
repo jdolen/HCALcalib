@@ -458,14 +458,6 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           if (verbose) cout<<" proton "<<endl;
           genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
-        case 3222: // Sigma+
-          if (verbose) cout<<" Sigma+"<<endl;
-          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
-          break;
-        case 3112: // Sigma-
-          if (verbose) cout<<" Sigma-"<<endl;
-          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
-          break;
         case 310: // K_S0
           if (verbose) cout<<" K_S0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
