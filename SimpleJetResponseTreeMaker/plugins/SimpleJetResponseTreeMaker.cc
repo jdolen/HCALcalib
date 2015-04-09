@@ -466,10 +466,6 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           if (verbose) cout<<" Sigma-"<<endl;
           genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
-        case 11: //electrons (until recognised)
-          if (verbose) cout<<" electrons "<<endl;
-          genjet_electrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
-          break;
         case 310: // K_S0
           if (verbose) cout<<" K_S0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
@@ -490,9 +486,25 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           if (verbose) cout<<" n0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
-        case 11: // lepton
+        case 11: //electrons 
+          if (verbose) cout<<" electrons "<<endl;
+          genjet_electrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 13: // muon
           if (verbose) cout<<" lepton "<<endl;
-          genjet_lepton.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          genjet_muon.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 12: // neutrino
+          if (verbose) cout<<" neutrino "<<endl;
+          genjet_neutrino.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 14: // neutrino
+          if (verbose) cout<<" neutrino "<<endl;
+          genjet_neutrino.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 16: // neutrino
+          if (verbose) cout<<" neutrino "<<endl;
+          genjet_neutrino.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         default:
           if (verbose) cout<<" other other other other other other other other other other other other other"<<endl;
