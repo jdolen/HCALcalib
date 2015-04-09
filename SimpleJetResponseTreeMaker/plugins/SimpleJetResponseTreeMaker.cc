@@ -216,30 +216,6 @@ class SimpleJetResponseTreeMaker : public edm::EDAnalyzer {
       Float_t PFJet_MatchedGenJet_HadEnergy                 ; 
 
 
-PFJet_MatchedGenJet_GenParticle_Pt     
-PFJet_MatchedGenJet_GenPhoton_Pt       
-PFJet_MatchedGenJet_GenElectron_Pt     
-PFJet_MatchedGenJet_GenMuon_Pt         
-PFJet_MatchedGenJet_GenNeutrino_Pt     
-PFJet_MatchedGenJet_GenCharHad_Pt      
-PFJet_MatchedGenJet_GenNeutHad_Pt      
-PFJet_MatchedGenJet_GenOther_Pt        
-PFJet_MatchedGenJet_GenParticle_Mass   
-PFJet_MatchedGenJet_GenPhoton_Mass     
-PFJet_MatchedGenJet_GenElectron_Mass   
-PFJet_MatchedGenJet_GenMuon_Mass       
-PFJet_MatchedGenJet_GenNeutrino_Mass   
-PFJet_MatchedGenJet_GenCharHad_Mass    
-PFJet_MatchedGenJet_GenNeutHad_Mass    
-PFJet_MatchedGenJet_GenOther_Mass      
-PFJet_MatchedGenJet_GenParticle_Energy 
-PFJet_MatchedGenJet_GenPhoton_Energy   
-PFJet_MatchedGenJet_GenElectron_Energy 
-PFJet_MatchedGenJet_GenMuon_Energy     
-PFJet_MatchedGenJet_GenNeutrino_Energy 
-PFJet_MatchedGenJet_GenCharHad_Energy  
-PFJet_MatchedGenJet_GenNeutHad_Energy  
-PFJet_MatchedGenJet_GenOther_Energy    
 
 
       Float_t PFJet_MatchedGenJet_GenParticle_Pt      ;  
