@@ -337,7 +337,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace reco;
   using namespace pat;
 
-  bool verbose = false;
+  bool verbose = true;
 
   int run   = iEvent.id().run();
   int event = iEvent.id().event();
@@ -482,6 +482,22 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           if (verbose) cout<<" Sigma0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
+        case 3222: // SigmaPlus
+          if (verbose) cout<<" SigmaPlus "<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 3112: // SigmaMinus
+          if (verbose) cout<<" SigmaMinus "<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 3322: // Xi0
+          if (verbose) cout<<" Xi0 "<<endl;
+          genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
+        case 3312: // XiMinus
+          if (verbose) cout<<" XiMinus "<<endl;
+          genjet_charged_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
+          break;
         case 2112: // n0
           if (verbose) cout<<" n0 "<<endl;
           genjet_neutral_hadrons.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
@@ -507,7 +523,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
           genjet_neutrino.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
         default:
-          if (verbose) cout<<" other other other other other other other other other other other other other"<<endl;
+          if (verbose) cout<<" other"<<endl;
           genjet_other.push_back( fastjet::PseudoJet( mcpart->px(), mcpart->py(), mcpart->pz(), mcpart->energy() ));
           break;
       }  // end PDG switch  
@@ -523,7 +539,7 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
 
 
     double sum_pt = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt() + combined_genjet_other.pt() ;
-    double sum_pt_no_other = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt()  ;
+    // double sum_pt_no_other = combined_genjet_photons.pt() + combined_genjet_electrons.pt() + combined_genjet_charged_hadrons.pt() + combined_genjet_neutral_hadrons.pt()  ;
     
     if (verbose){
       cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
