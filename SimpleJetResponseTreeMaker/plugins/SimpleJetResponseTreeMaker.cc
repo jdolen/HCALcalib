@@ -531,9 +531,9 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
       cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
       cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
-      cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
+      // cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
       cout<<" sum                               Pt "<< sum_pt <<"     ptfraction "<<sum_pt/combined_genjet_particles       .pt() <<endl;;
-      cout<<" sum no other                      Pt "<< sum_pt_no_other <<"     ptfraction "<<sum_pt_no_other/combined_genjet_particles       .pt() <<endl;
+      // cout<<" sum no other                      Pt "<< sum_pt_no_other <<"     ptfraction "<<sum_pt_no_other/combined_genjet_particles       .pt() <<endl;
     }
   }
 
@@ -841,14 +841,14 @@ SimpleJetResponseTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSe
       fastjet::PseudoJet combined_genjet_neutral_hadrons  = fastjet::join(genjet_neutral_hadrons );
       fastjet::PseudoJet combined_genjet_other            = fastjet::join(genjet_other           );
 
-      if (verbose){
-        cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
-        cout<<" combined_genjet_photons           Pt "<< combined_genjet_photons         .pt() <<"     ptfraction "<< combined_genjet_photons         .pt() / combined_genjet_particles       .pt()<<endl;
-        cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
-        cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
-        cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
-        cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
-      }
+      // if (verbose){
+      //   cout<<" combined_genjet_particles         Pt "<< combined_genjet_particles       .pt() <<"     ptfraction "<< combined_genjet_particles       .pt() / combined_genjet_particles       .pt()<<endl;
+      //   cout<<" combined_genjet_photons           Pt "<< combined_genjet_photons         .pt() <<"     ptfraction "<< combined_genjet_photons         .pt() / combined_genjet_particles       .pt()<<endl;
+      //   cout<<" combined_genjet_electrons         Pt "<< combined_genjet_electrons       .pt() <<"     ptfraction "<< combined_genjet_electrons       .pt() / combined_genjet_particles       .pt()<<endl;
+      //   cout<<" combined_genjet_charged_hadrons   Pt "<< combined_genjet_charged_hadrons .pt() <<"     ptfraction "<< combined_genjet_charged_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+      //   cout<<" combined_genjet_neutral_hadrons   Pt "<< combined_genjet_neutral_hadrons .pt() <<"     ptfraction "<< combined_genjet_neutral_hadrons .pt() / combined_genjet_particles       .pt()<<endl;
+      //   cout<<" combined_genjet_other             Pt "<< combined_genjet_other           .pt() <<"     ptfraction "<< combined_genjet_other           .pt() / combined_genjet_particles       .pt()<<endl;
+      // }
    
       PFJet_MatchedGenJet_GenParticle_Pt       = combined_genjet_particles       .pt()    ;
       PFJet_MatchedGenJet_GenPhoton_Pt         = combined_genjet_photons         .pt()    ;
