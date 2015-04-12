@@ -1187,7 +1187,7 @@ SimpleJetResponseTreeMaker::beginJob()
   PFJetTree->Branch("PFJet_MatchedGenJet_GenParticle_Pt"      , & PFJet_MatchedGenJet_GenParticle_Pt      , "PFJet_MatchedGenJet_GenParticle_Pt/F"       );             
   PFJetTree->Branch("PFJet_MatchedGenJet_GenPhoton_Pt"        , & PFJet_MatchedGenJet_GenPhoton_Pt        , "PFJet_MatchedGenJet_GenPhoton_Pt/F"         );           
   PFJetTree->Branch("PFJet_MatchedGenJet_GenElectron_Pt"      , & PFJet_MatchedGenJet_GenElectron_Pt      , "PFJet_MatchedGenJet_GenElectron_Pt/F"       );             
-  PFJetTree->Branch("PFJet_MatchedGenJet_GenMuon_Pt"          , & PFJet_MatchedGenJet_GenElectron_Pt      , "PFJet_MatchedGenJet_GenElectron_Pt/F"       );             
+  PFJetTree->Branch("PFJet_MatchedGenJet_GenMuon_Pt"          , & PFJet_MatchedGenJet_GenMuon_Pt          , "PFJet_MatchedGenJet_GenMuon_Pt/F"           );             
   PFJetTree->Branch("PFJet_MatchedGenJet_GenNeutrino_Pt"      , & PFJet_MatchedGenJet_GenNeutrino_Pt      , "PFJet_MatchedGenJet_GenNeutrino_Pt/F"       );             
   PFJetTree->Branch("PFJet_MatchedGenJet_GenCharHad_Pt"       , & PFJet_MatchedGenJet_GenCharHad_Pt       , "PFJet_MatchedGenJet_GenCharHad_Pt/F"        );            
   PFJetTree->Branch("PFJet_MatchedGenJet_GenNeutHad_Pt"       , & PFJet_MatchedGenJet_GenNeutHad_Pt       , "PFJet_MatchedGenJet_GenNeutHad_Pt/F"        );            
